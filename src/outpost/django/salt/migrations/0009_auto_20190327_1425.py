@@ -7,14 +7,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('salt', '0008_remove_user_person'),
-    ]
+    dependencies = [("salt", "0008_remove_user_person")]
 
     operations = [
         migrations.RenameField(
-            model_name='staffuser',
-            old_name='coperson',
-            new_name='person',
-        ),
+            model_name="staffuser", old_name="coperson", new_name="person"
+        )
     ]

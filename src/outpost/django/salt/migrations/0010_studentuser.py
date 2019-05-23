@@ -9,20 +9,35 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('campusonline', '0045_course_group_term_filterd'),
-        ('salt', '0009_auto_20190327_1425'),
+        ("campusonline", "0045_course_group_term_filterd"),
+        ("salt", "0009_auto_20190327_1425"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StudentUser',
+            name="StudentUser",
             fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='salt.User')),
-                ('person', models.OneToOneField(db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='campusonline.Student')),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="salt.User",
+                    ),
+                ),
+                (
+                    "person",
+                    models.OneToOneField(
+                        db_constraint=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="campusonline.Student",
+                    ),
+                ),
             ],
-            options={
-                'manager_inheritance_from_future': True,
-            },
-            bases=('salt.user',),
-        ),
+            options={"manager_inheritance_from_future": True},
+            bases=("salt.user",),
+        )
     ]

@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('salt', '0007_convert_to_staffuser'),
-    ]
+    dependencies = [("salt", "0007_convert_to_staffuser")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='user',
-            name='person',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="user", name="person")]

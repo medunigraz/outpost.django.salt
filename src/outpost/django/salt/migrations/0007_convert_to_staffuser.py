@@ -6,36 +6,28 @@ from django.db import migrations, connection
 
 
 def migrate_to_staffuser(apps, schema_editor):
-    User = apps.get_model('salt', 'User')
-    StaffUser = apps.get_model('salt', 'StaffUser')
-    ContentType = apps.get_model('contenttypes', 'ContentType')
+    User = apps.get_model("salt", "User")
+    StaffUser = apps.get_model("salt", "StaffUser")
+    ContentType = apps.get_model("contenttypes", "ContentType")
     new_ct = ContentType.objects.get_for_model(StaffUser)
     User.objects.filter(polymorphic_ctype__isnull=True).update(polymorphic_ctype=new_ct)
     with connection.cursor() as cursor:
         for user in User.objects.all():
             user.coperson = user.person
             user.save()
-            cursor.execute('''
+            cursor.execute(
+                """
                 INSERT INTO
                     salt_staffuser (user_ptr_id, coperson_id)
                 VALUES
                     (%s, %s)
-                ''', [
-                    user.id,
-                    user.person_id
-                ]
+                """,
+                [user.id, user.person_id],
             )
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('salt', '0006_auto_20190327_1246'),
-    ]
+    dependencies = [("salt", "0006_auto_20190327_1246")]
 
-    operations = [
-        migrations.RunPython(
-            migrate_to_staffuser,
-            migrations.RunPython.noop
-        ),
-    ]
+    operations = [migrations.RunPython(migrate_to_staffuser, migrations.RunPython.noop)]

@@ -8,14 +8,14 @@ import outpost.django.base.validators
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('salt', '0004_user_local'),
-    ]
+    dependencies = [("salt", "0004_user_local")]
 
     operations = [
         migrations.AlterField(
-            model_name='publickey',
-            name='key',
-            field=models.TextField(validators=[outpost.django.base.validators.PublicKeyValidator()]),
-        ),
+            model_name="publickey",
+            name="key",
+            field=models.TextField(
+                validators=[outpost.django.base.validators.PublicKeyValidator()]
+            ),
+        )
     ]

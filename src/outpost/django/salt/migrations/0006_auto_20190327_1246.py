@@ -9,26 +9,47 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('campusonline', '0045_course_group_term_filterd'),
-        ('salt', '0005_auto_20190129_1545'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("campusonline", "0045_course_group_term_filterd"),
+        ("salt", "0005_auto_20190129_1545"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StaffUser',
+            name="StaffUser",
             fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='salt.User')),
-                ('coperson', models.OneToOneField(db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='campusonline.Person')),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="salt.User",
+                    ),
+                ),
+                (
+                    "coperson",
+                    models.OneToOneField(
+                        db_constraint=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="campusonline.Person",
+                    ),
+                ),
             ],
-            options={
-                'manager_inheritance_from_future': True,
-            },
-            bases=('salt.user',),
+            options={"manager_inheritance_from_future": True},
+            bases=("salt.user",),
         ),
         migrations.AddField(
-            model_name='user',
-            name='polymorphic_ctype',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_salt.user_set+', to='contenttypes.ContentType'),
+            model_name="user",
+            name="polymorphic_ctype",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="polymorphic_salt.user_set+",
+                to="contenttypes.ContentType",
+            ),
         ),
     ]
