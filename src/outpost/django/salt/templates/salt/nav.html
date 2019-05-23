@@ -1,0 +1,15 @@
+{% load i18n %}
+{% if request.user.is_authenticated %}
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="glyphicon glyphicon-dashboard"></span>
+    SaltStack
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+    <li>
+        <a href="{% url 'salt:publickey' %}">{% trans 'Public keys' %}</a>
+    </li>
+  </ul>
+</li>
+{% endif %}

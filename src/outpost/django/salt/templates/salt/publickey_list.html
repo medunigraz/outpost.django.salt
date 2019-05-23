@@ -1,0 +1,56 @@
+{% extends "outpost/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="page-header">
+    <div class="btn-group pull-right">
+        <a href="{% url 'salt:publickey-create' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+            {% trans "Add public key" %}
+        </a>
+    </div>
+    <h1>
+        {% trans "Your public keys" %}
+    </h1>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        {% blocktrans %}
+        All your keys will be installed with your local user account on:
+        {% endblocktrans %}
+    </div>
+    <div class="col-sm-6">
+        <ul>
+            {% for system in user.systems.all %}
+            <li>{{ system }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<h3>{% trans "Current Keys" %}</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Hash</th>
+            <th>Comment</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key in object_list %}
+        <tr>
+            <th scope="row">{{ key.name }}</th>
+            <td><code>{{ key.fingerprint }}</code></td>
+            <td>{{ key.comment }}</td>
+            <td>
+                <a href="{% url 'salt:publickey-delete' pk=key.pk %}" class="text-danger">
+                    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

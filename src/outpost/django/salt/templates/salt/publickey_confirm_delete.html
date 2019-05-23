@@ -1,0 +1,42 @@
+{% extends "outpost/base.html" %}
+
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        {% trans "Remove public key" %}
+    </h1>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        {% blocktrans with name=object.name fingerprint=object.fingerprint %}
+        Are you sure you want to remove your key <strong>{{ name }}</strong> (<code>{{ fingerprint }}</code>) from these systems:
+        {% endblocktrans %}
+    </div>
+    <div class="col-sm-6">
+        <ul>
+            {% for system in user.systems.all %}
+            <li>{{ system }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <form method="post" action="{% url 'salt:publickey-delete' pk=object.pk %}" enctype="multipart/form-data" class="col-sm-12">
+        {% csrf_token %}
+
+        <div class="control-group">
+            <button type="submit" class="btn btn-danger">
+                <span class="glyphicon glyphicon-remove-sign"></span>
+                {% trans 'Delete' %}
+            </button>
+            <a href="{% url 'salt:publickey' %}" class="btn btn-warning">
+                <span class="glyphicon glyphicon-ban-circle"></span>
+                {% trans 'Cancel' %}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
