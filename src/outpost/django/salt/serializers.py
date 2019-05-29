@@ -8,7 +8,7 @@ class PublicKeySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.PublicKey
-        fields = ("fingerprint", "key")
+        fields = ("fingerprint", "key", "openssh")
 
 
 class GroupSerializer(serializers.ModelSerializer):

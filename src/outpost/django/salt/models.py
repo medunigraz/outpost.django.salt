@@ -30,6 +30,11 @@ class PublicKey(models.Model):
         return "SHA256:{}".format(f)
 
     @property
+    def openssh(self):
+        k = asyncssh.import_public_key(self.key)
+        return k.export_public_key()
+
+    @property
     def comment(self):
         k = asyncssh.import_public_key(self.key)
         return k.get_comment()
