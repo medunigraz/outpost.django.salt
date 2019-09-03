@@ -21,15 +21,10 @@ class AuthenticateViewSet(viewsets.ViewSet):
     permission_classes = (permissions.AllowAny,)
 
     def create(self, request):
-        from .tasks import PasswordRefreshTask
-
         username = request.data.get("username")
         password = request.data.get("password")
         if username == settings.SALT_MANAGEMENT_USER:
-            current = cache.get(
-                settings.SALT_MANAGEMENT_KEY, PasswordRefreshTask().run()
-            )
-            if password == current:
+            if password == settings.SALT_MANAGEMENT_PASSWORD:
                 return Response({username: settings.SALT_MANAGEMENT_PERMISSIONS})
             else:
                 raise exceptions.AuthenticationFailed()
