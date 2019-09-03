@@ -56,6 +56,11 @@ class SystemSerializer(serializers.ModelSerializer):
 class HostSerializer(serializers.ModelSerializer):
     system = SystemSerializer()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.update(self.Meta.extensions)
+
     class Meta:
         model = models.Host
-        fields = ("name", "outpost")
+        fields = "__all__"
+        extensions = dict()
