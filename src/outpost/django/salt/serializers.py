@@ -45,17 +45,16 @@ class SystemUserSerializer(serializers.ModelSerializer):
 
 
 class SystemSerializer(serializers.ModelSerializer):
-    system = serializers.CharField(source="name")
-    users = SystemUserSerializer(many=True, source="systemuser_set")
+    users = SystemUserSerializer(source="systemuser_set", many=True)
     groups = GroupSerializer(source="group_set", many=True)
 
     class Meta:
         model = models.System
-        fields = ("system", "users", "groups")
+        fields = ("name", "users", "groups")
 
 
 class HostSerializer(serializers.ModelSerializer):
-    outpost = SystemSerializer(source="system")
+    system = SystemSerializer()
 
     class Meta:
         model = models.Host
