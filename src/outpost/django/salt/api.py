@@ -25,7 +25,7 @@ class AuthenticateViewSet(viewsets.ViewSet):
         password = request.data.get("password")
         if username == settings.SALT_MANAGEMENT_USER:
             if password == settings.SALT_MANAGEMENT_PASSWORD:
-                return Response({username: settings.SALT_MANAGEMENT_PERMISSIONS})
+                return Response(settings.SALT_MANAGEMENT_PERMISSIONS)
             else:
                 raise exceptions.AuthenticationFailed()
         user = authenticate(request, username=username, password=password)
@@ -37,4 +37,4 @@ class AuthenticateViewSet(viewsets.ViewSet):
                 perms[h.name].append(p.function)
         eauth = perms.get(None, [])
         eauth.extend([{k: v} for k, v in perms.items() if k])
-        return Response({user.username: eauth})
+        return Response(eauth)

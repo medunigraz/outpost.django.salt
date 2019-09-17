@@ -6,7 +6,6 @@ from celery.task import PeriodicTask, Task
 from purl import URL
 
 from .conf import settings
-from .models import SystemUser, User
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +14,8 @@ class CleanUsersTask(PeriodicTask):
     run_every = timedelta(minutes=5)
 
     def run(self, **kwargs):
+        from .models import SystemUser, User
+
         for u in SystemUser.objects.all():
             try:
                 str(u.user.person)
@@ -39,11 +40,13 @@ class RunCommandTask(Task):
             }
         )
         try:
+            logger.debug(f"Posting task with data to Salt API: {kwargs}")
             result = self.session.post(
                 url.add_path_segment("run").as_string(), data=kwargs
             )
             result.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"Failed to run task through Salt API: {e}")
+            return
         logger.debug(f"Scheduled job through Salt API: {result.text}")
         return result.json()
