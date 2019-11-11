@@ -1,24 +1,124 @@
+import os
 import logging
+import hashlib
+import magic
+import gpg
+from io import BytesIO
+from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from hashlib import sha256
+from pathlib import Path
 
 import asyncssh
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
+from django.contrib.postgres.fields import JSONField
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.core.validators import RegexValidator
+from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.files import File as DjangoFile
 from polymorphic.models import PolymorphicModel
 
 from outpost.django.base.decorators import signal_connect
+from outpost.django.base.utils import Uuid4Upload
 from outpost.django.base.validators import PublicKeyValidator
 from outpost.django.campusonline.models import Person, Student
 
 from .tasks import RunCommandTask
+from .conf import settings
 
 
 logger = logging.getLogger(__name__)
+
+
+class File(models.Model):
+    user = models.ForeignKey("User")
+    path = models.CharField(max_length=512)
+    content = models.FileField(upload_to=Uuid4Upload)
+    systems = models.ManyToManyField("System", through="SystemFile", blank=True)
+    sha256 = models.CharField(max_length=64)
+    permissions = models.CharField(
+        max_length=4,
+        default='0640',
+        validators=(
+            RegexValidator(r'^0?[0-7]{3}$', _('Not a valid POSIX permission.')),
+        )
+    )
+    mimetype = models.TextField()
+
+    @classmethod
+    def pre_save_handler(cls, sender, instance, raw, *args, **kwargs):
+        if raw:
+            return
+        for system in instance.user.systems.all():
+            path = Path(instance.path)
+            home = Path(
+                system.home_template.format(
+                    username=instance.user.username
+                )
+            )
+            if not path.is_absolute():
+                path = home.joinpath(path)
+            path = path.resolve()
+            if home.parts != path.parts[:len(home.parts)]:
+                raise ValidationError(
+                    f"Path does not fit in home directory {home} on {system}."
+                )
+        if not isinstance(instance.content.file, TemporaryUploadedFile):
+            return
+        hash = hashlib.sha256()
+        b = bytearray(128*1024)
+        mv = memoryview(b)
+        for n in iter(lambda: instance.content.readinto(mv), 0):
+            hash.update(mv[:n])
+        instance.sha256 = hash.hexdigest()
+        instance.content.seek(0)
+        mimetype = magic.detect_from_fobj(instance.content)
+        instance.mimetype = mimetype.mime_type
+        #with gpg.Context(armor=True) as c:
+        #    imp = c.key_import(settings.SALT_PUBLIC_KEY.encode('ascii'))
+        #    if not isinstance(imp, gpg.results.ImportResult):
+        #        logger.error('Could not import Saltstack public GPG key.')
+        #        raise ImproperlyConfigured(_("Invalid Saltstack public PGP key."))
+        #    keys = [c.get_key(k.fpr) for k in imp.imports]
+        #    #import pudb; pu.db
+        #    sink = NamedTemporaryFile(
+        #        prefix=f"{__name__}.{__class__.__name__}.",
+        #        suffix=".asc"
+        #    )
+        #    result, encryption, signature = c.encrypt(
+        #        instance.content,
+        #        keys,
+        #        sign=False,
+        #        always_trust=True,
+        #        sink=sink
+        #    )
+        #    #os.unlink(instance.content.file.file.name)
+        #    instance.content = DjangoFile(sink)
+
+    def __str__(self):
+        return f"{self.user}: {self.path}"
+
+
+pre_save.connect(File.pre_save_handler, sender=File)
+
+
+class SystemFile(models.Model):
+    system = models.ForeignKey("System")
+    file = models.ForeignKey("File")
+
+    @property
+    def path(self) -> str:
+        username = self.file.user.username
+        home = Path(self.system.home_template.format(username=username))
+        path = home.joinpath(Path(self.file.path)).resolve()
+        return str(path)
+
+    def __str__(self):
+        return f"{self.system}: {self.path}"
 
 
 class PublicKey(models.Model):
@@ -230,3 +330,35 @@ class Permission(models.Model):
         if not self.system:
             return f"{self.user}: {self.function}"
         return f"{self.user}@{self.system}: {self.function}"
+
+
+class Job(models.Model):
+    id = models.CharField(max_length=20, primary_key=True)
+    data = JSONField()
+
+    class Meta:
+        managed = False
+        db_table = "salt_job"
+
+    def __str__(self):
+        return self.id
+
+
+class Result(models.Model):
+    function = models.CharField(max_length=50)
+    job = models.ForeignKey("Job")
+    result = JSONField()
+    data = JSONField()
+    target = models.CharField(max_length=255)
+    success = models.BooleanField()
+    modified = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = "salt_result"
+        ordering = (
+            "-modified",
+        )
+
+    def __str__(self):
+        return f"{self.target}: {self.function} @ {self.modified}"

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 
 from . import models
 
@@ -47,3 +48,31 @@ class GroupAdmin(admin.ModelAdmin):
 @admin.register(models.Permission)
 class PermissionAdmin(admin.ModelAdmin):
     pass
+
+
+class SystemFileInline(admin.TabularInline):
+    model = models.File.systems.through
+
+
+@admin.register(models.File)
+class FileAdmin(VersionAdmin):
+    list_display = ("pk", "path", "permissions", "sha256")
+    list_filter = ("user",)
+    search_fields = ("path",)
+    readonly_fields = (
+        'sha256',
+        'mimetype',
+    )
+    inlines = (SystemFileInline,)
+
+
+@admin.register(models.Job)
+class JobAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Result)
+class ResultAdmin(admin.ModelAdmin):
+    date_hierarchy = "modified"
+    list_filter = ("success", "function")
+    list_display = ("pk", "target", "function", "success", "modified")

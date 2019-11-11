@@ -1,0 +1,44 @@
+{% extends "outpost/base.html" %}
+
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="page-header">
+  <h1>
+    {% trans "Remove file" %}
+  </h1>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    {% blocktrans with name=object.path %}
+    Are you sure you want to remove your file <strong>{{ name }}</strong>. It was installed on the following systems but will not be automatically deleted.
+    {% endblocktrans %}
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <ul>
+      {% for systemfile in object.systemfile_set.all %}
+      <li>{{ systemfile.system }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="row">
+  <form method="post" action="{% url 'salt:file-delete' pk=object.pk %}" enctype="multipart/form-data" class="col-sm-12">
+    {% csrf_token %}
+
+    <div class="control-group">
+      <button type="submit" class="btn btn-danger">
+        <span class="glyphicon glyphicon-remove-sign"></span>
+        {% trans 'Delete' %}
+      </button>
+      <a href="{% url 'salt:file' %}" class="btn btn-warning">
+        <span class="glyphicon glyphicon-ban-circle"></span>
+        {% trans 'Cancel' %}
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}
