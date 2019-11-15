@@ -181,7 +181,6 @@ class PublicKey(models.Model):
     def post_save(cls, sender, instance, created, *args, **kwargs):
         for system in instance.user.systems.all():
             for host in system.host_set.all():
-                logger.debug(f"Scheduling public key sync task for {host}")
                 task = RunCommandTask().delay(
                     tgt_type="compound",
                     tgt=f"G@host:{host.name}",
