@@ -99,11 +99,26 @@ class File(models.Model):
         #    #os.unlink(instance.content.file.file.name)
         #    instance.content = DjangoFile(sink)
 
+    @classmethod
+    def post_save_handler(cls, sender, instance, raw, *args, **kwargs):
+        if raw:
+            return
+        for system in instance.systems.all():
+            for host in system.host_set.all():
+                task = RunCommandTask().delay(
+                    tgt_type="compound",
+                    tgt=f"G@host:{host.name}",
+                    fun="state.apply",
+                    arg=["outpost.files"],
+                )
+                logger.debug(f"Scheduled file sync for {host} as {task.id}")
+
     def __str__(self):
         return f"{self.user}: {self.path}"
 
 
 pre_save.connect(File.pre_save_handler, sender=File)
+post_save.connect(File.post_save_handler, sender=File)
 
 
 class SystemFile(models.Model):
@@ -117,8 +132,24 @@ class SystemFile(models.Model):
         path = home.joinpath(Path(self.file.path)).resolve()
         return str(path)
 
+    @classmethod
+    def post_save_handler(cls, sender, instance, raw, *args, **kwargs):
+        if raw:
+            return
+        for host in instance.system.host_set.all():
+            task = RunCommandTask().delay(
+                tgt_type="compound",
+                tgt=f"G@host:{host.name}",
+                fun="state.apply",
+                arg=["outpost.files"],
+            )
+            logger.debug(f"Scheduled file sync for {host} as {task.id}")
+
     def __str__(self):
         return f"{self.system}: {self.path}"
+
+
+post_save.connect(SystemFile.post_save_handler, sender=SystemFile)
 
 
 class PublicKey(models.Model):
