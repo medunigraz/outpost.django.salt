@@ -7,6 +7,7 @@ class SaltAppConf(AppConf):
     MANAGEMENT_USER = __package__
     MANAGEMENT_PASSWORD = None
     MANAGEMENT_PERMISSIONS = [".*"]
+    EVENTS_RETRY = 60
     PUBLIC_KEY = """
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 

@@ -258,7 +258,7 @@ class SystemUser(models.Model):
         for host in instance.system.host_set.all():
             task = RunCommandTask().delay(
                 tgt_type="compound",
-                tgt=f"G@host:{instance.name}",
+                tgt=f"G@host:{host.name}",
                 fun="state.apply",
                 arg=["outpost"],
             )
