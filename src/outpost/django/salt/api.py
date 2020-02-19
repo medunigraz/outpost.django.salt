@@ -15,6 +15,8 @@ class HostViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Host.objects.all()
     serializer_class = serializers.HostSerializer
     permission_classes = (permissions.IsAuthenticated, ExtendedDjangoModelPermissions)
+    lookup_field = 'name'
+    lookup_value_regex = '[^/]+'
 
 
 class AuthenticateViewSet(viewsets.ViewSet):
