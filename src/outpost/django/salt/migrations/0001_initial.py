@@ -16,200 +16,367 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('campusonline', '0050_stud_photo'),
+        ("campusonline", "0050_stud_photo"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.CharField(max_length=20, primary_key=True, serialize=False)),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.CharField(max_length=20, primary_key=True, serialize=False),
+                ),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField()),
+            ],
+            options={"db_table": "salt_job", "managed": False},
+        ),
+        migrations.CreateModel(
+            name="Result",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("function", models.CharField(max_length=50)),
+                ("result", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("target", models.CharField(max_length=255)),
+                ("success", models.BooleanField()),
+                ("modified", models.DateTimeField()),
             ],
             options={
-                'db_table': 'salt_job',
-                'managed': False,
+                "db_table": "salt_result",
+                "ordering": ("-modified",),
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Result',
+            name="File",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('function', models.CharField(max_length=50)),
-                ('result', django.contrib.postgres.fields.jsonb.JSONField()),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField()),
-                ('target', models.CharField(max_length=255)),
-                ('success', models.BooleanField()),
-                ('modified', models.DateTimeField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=512)),
+                (
+                    "content",
+                    models.FileField(upload_to=outpost.django.base.utils.Uuid4Upload),
+                ),
+                ("sha256", models.CharField(max_length=64)),
+                (
+                    "permissions",
+                    models.CharField(
+                        default="0640",
+                        max_length=4,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                "^0?[0-7]{3}$", "Not a valid POSIX permission."
+                            )
+                        ],
+                    ),
+                ),
+                ("mimetype", models.TextField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name="Group",
+            fields=[
+                ("id", models.IntegerField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=31, unique=True)),
+            ],
+            options={"ordering": ("pk",)},
+        ),
+        migrations.CreateModel(
+            name="Host",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(db_index=True, max_length=64, unique=True)),
             ],
             options={
-                'db_table': 'salt_result',
-                'ordering': ('-modified',),
-                'managed': False,
+                "ordering": ("name",),
+                "permissions": (("view_host", "View host"),),
             },
         ),
         migrations.CreateModel(
-            name='File',
+            name="Permission",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=512)),
-                ('content', models.FileField(upload_to=outpost.django.base.utils.Uuid4Upload)),
-                ('sha256', models.CharField(max_length=64)),
-                ('permissions', models.CharField(default='0640', max_length=4, validators=[django.core.validators.RegexValidator('^0?[0-7]{3}$', 'Not a valid POSIX permission.')])),
-                ('mimetype', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("function", models.CharField(default=".*", max_length=256)),
             ],
         ),
         migrations.CreateModel(
-            name='Group',
+            name="PublicKey",
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=31, unique=True)),
-            ],
-            options={
-                'ordering': ('pk',),
-            },
-        ),
-        migrations.CreateModel(
-            name='Host',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=64, unique=True)),
-            ],
-            options={
-                'ordering': ('name',),
-                'permissions': (('view_host', 'View host'),),
-            },
-        ),
-        migrations.CreateModel(
-            name='Permission',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('function', models.CharField(default='.*', max_length=256)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                (
+                    "key",
+                    models.TextField(
+                        validators=[outpost.django.base.validators.PublicKeyValidator()]
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PublicKey',
+            name="System",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('key', models.TextField(validators=[outpost.django.base.validators.PublicKeyValidator()])),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                (
+                    "home_template",
+                    models.CharField(default="/home/{username}", max_length=256),
+                ),
+                ("same_group_id", models.BooleanField(default=True)),
+                ("same_group_name", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='System',
+            name="SystemFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('home_template', models.CharField(default='/home/{username}', max_length=256)),
-                ('same_group_id', models.BooleanField(default=True)),
-                ('same_group_name', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="salt.File"
+                    ),
+                ),
+                (
+                    "system",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="salt.System"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SystemFile',
+            name="SystemUser",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.File')),
-                ('system', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.System')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("shell", models.CharField(default="/bin/bash", max_length=256)),
+                ("sudo", models.BooleanField(default=False)),
+                ("groups", models.ManyToManyField(blank=True, to="salt.Group")),
+                (
+                    "system",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="salt.System"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SystemUser',
+            name="User",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('shell', models.CharField(default='/bin/bash', max_length=256)),
-                ('sudo', models.BooleanField(default=False)),
-                ('groups', models.ManyToManyField(blank=True, to='salt.Group')),
-                ('system', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.System')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                )
             ],
+            options={"ordering": ("pk",), "manager_inheritance_from_future": True},
         ),
         migrations.CreateModel(
-            name='User',
+            name="StaffUser",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="salt.User",
+                    ),
+                ),
+                (
+                    "person",
+                    models.OneToOneField(
+                        db_constraint=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="campusonline.Person",
+                    ),
+                ),
             ],
-            options={
-                'ordering': ('pk',),
-                'manager_inheritance_from_future': True,
-            },
+            options={"manager_inheritance_from_future": True},
+            bases=("salt.user",),
         ),
         migrations.CreateModel(
-            name='StaffUser',
+            name="StudentUser",
             fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='salt.User')),
-                ('person', models.OneToOneField(db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='campusonline.Person')),
+                (
+                    "user_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="salt.User",
+                    ),
+                ),
+                (
+                    "person",
+                    models.OneToOneField(
+                        db_constraint=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="campusonline.Student",
+                    ),
+                ),
             ],
-            options={
-                'manager_inheritance_from_future': True,
-            },
-            bases=('salt.user',),
-        ),
-        migrations.CreateModel(
-            name='StudentUser',
-            fields=[
-                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='salt.User')),
-                ('person', models.OneToOneField(db_constraint=False, on_delete=django.db.models.deletion.CASCADE, to='campusonline.Student')),
-            ],
-            options={
-                'manager_inheritance_from_future': True,
-            },
-            bases=('salt.user',),
+            options={"manager_inheritance_from_future": True},
+            bases=("salt.user",),
         ),
         migrations.AddField(
-            model_name='user',
-            name='local',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="user",
+            name="local",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='polymorphic_ctype',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_salt.user_set+', to='contenttypes.ContentType'),
+            model_name="user",
+            name="polymorphic_ctype",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="polymorphic_salt.user_set+",
+                to="contenttypes.ContentType",
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='systems',
-            field=models.ManyToManyField(blank=True, through='salt.SystemUser', to='salt.System'),
+            model_name="user",
+            name="systems",
+            field=models.ManyToManyField(
+                blank=True, through="salt.SystemUser", to="salt.System"
+            ),
         ),
         migrations.AddField(
-            model_name='systemuser',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.User'),
+            model_name="systemuser",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="salt.User"
+            ),
         ),
         migrations.AddField(
-            model_name='publickey',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.User'),
+            model_name="publickey",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="salt.User"
+            ),
         ),
         migrations.AddField(
-            model_name='permission',
-            name='system',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='salt.System'),
+            model_name="permission",
+            name="system",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="salt.System",
+            ),
         ),
         migrations.AddField(
-            model_name='permission',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="permission",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='host',
-            name='system',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='salt.System'),
+            model_name="host",
+            name="system",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="salt.System",
+            ),
         ),
         migrations.AddField(
-            model_name='group',
-            name='systems',
-            field=models.ManyToManyField(blank=True, to='salt.System'),
+            model_name="group",
+            name="systems",
+            field=models.ManyToManyField(blank=True, to="salt.System"),
         ),
         migrations.AddField(
-            model_name='file',
-            name='systems',
-            field=models.ManyToManyField(blank=True, through='salt.SystemFile', to='salt.System'),
+            model_name="file",
+            name="systems",
+            field=models.ManyToManyField(
+                blank=True, through="salt.SystemFile", to="salt.System"
+            ),
         ),
         migrations.AddField(
-            model_name='file',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='salt.User'),
+            model_name="file",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="salt.User"
+            ),
         ),
     ]

@@ -59,10 +59,7 @@ class FileAdmin(VersionAdmin):
     list_display = ("pk", "path", "permissions", "sha256")
     list_filter = ("user",)
     search_fields = ("path",)
-    readonly_fields = (
-        'sha256',
-        'mimetype',
-    )
+    readonly_fields = ("sha256", "mimetype")
     inlines = (SystemFileInline,)
 
 

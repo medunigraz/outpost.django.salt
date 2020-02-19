@@ -42,10 +42,10 @@ class File(models.Model):
     sha256 = models.CharField(max_length=64)
     permissions = models.CharField(
         max_length=4,
-        default='0640',
+        default="0640",
         validators=(
-            RegexValidator(r'^0?[0-7]{3}$', _('Not a valid POSIX permission.')),
-        )
+            RegexValidator(r"^0?[0-7]{3}$", _("Not a valid POSIX permission.")),
+        ),
     )
     mimetype = models.TextField()
 
@@ -55,22 +55,18 @@ class File(models.Model):
             return
         for system in instance.user.systems.all():
             path = Path(instance.path)
-            home = Path(
-                system.home_template.format(
-                    username=instance.user.username
-                )
-            )
+            home = Path(system.home_template.format(username=instance.user.username))
             if not path.is_absolute():
                 path = home.joinpath(path)
             path = path.resolve()
-            if home.parts != path.parts[:len(home.parts)]:
+            if home.parts != path.parts[: len(home.parts)]:
                 raise ValidationError(
                     f"Path does not fit in home directory {home} on {system}."
                 )
         if not isinstance(instance.content.file, TemporaryUploadedFile):
             return
         hash = hashlib.sha256()
-        b = bytearray(128*1024)
+        b = bytearray(128 * 1024)
         mv = memoryview(b)
         for n in iter(lambda: instance.content.readinto(mv), 0):
             hash.update(mv[:n])
@@ -78,7 +74,7 @@ class File(models.Model):
         instance.content.seek(0)
         mimetype = magic.detect_from_fobj(instance.content)
         instance.mimetype = mimetype.mime_type
-        #with gpg.Context(armor=True) as c:
+        # with gpg.Context(armor=True) as c:
         #    imp = c.key_import(settings.SALT_PUBLIC_KEY.encode('ascii'))
         #    if not isinstance(imp, gpg.results.ImportResult):
         #        logger.error('Could not import Saltstack public GPG key.')
@@ -223,9 +219,7 @@ class Host(models.Model):
 
     class Meta:
         permissions = (("view_host", _("View host")),)
-        ordering = (
-            'name',
-        )
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
@@ -389,9 +383,7 @@ class Result(models.Model):
     class Meta:
         managed = False
         db_table = "salt_result"
-        ordering = (
-            "-modified",
-        )
+        ordering = ("-modified",)
 
     def __str__(self):
         return f"{self.target}: {self.function} @ {self.modified}"

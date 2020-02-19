@@ -1,7 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy as reverse
-from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
 from . import models
 
@@ -11,7 +17,6 @@ class IndexView(TemplateView):
 
 
 class PublicKeyMixin(object):
-
     def get_queryset(self):
         qs = super().get_queryset()
         suser = models.User.objects.get(local=self.request.user)
@@ -24,7 +29,6 @@ class PublicKeyMixin(object):
 
 
 class FileMixin(object):
-
     def get_queryset(self):
         qs = super().get_queryset()
         suser = models.User.objects.get(local=self.request.user)
@@ -69,11 +73,8 @@ class FileCreateView(LoginRequiredMixin, FileMixin, CreateView):
         suser = models.User.objects.get(local=self.request.user)
         form.instance.user = suser
         form.instance.save()
-        for system in form.cleaned_data['systems']:
-            models.SystemFile.objects.create(
-                file=form.instance,
-                system=system
-            )
+        for system in form.cleaned_data["systems"]:
+            models.SystemFile.objects.create(file=form.instance, system=system)
         self.object = form.instance
         return HttpResponseRedirect(self.get_success_url())
 
