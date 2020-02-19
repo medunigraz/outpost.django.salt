@@ -218,11 +218,14 @@ post_save.connect(System.post_save, sender=System)
 
 
 class Host(models.Model):
-    name = models.CharField(primary_key=True, max_length=64)
+    name = models.CharField(max_length=64, unique=True, db_index=True)
     system = models.ForeignKey("System", blank=True, null=True)
 
     class Meta:
         permissions = (("view_host", _("View host")),)
+        ordering = (
+            'name',
+        )
 
     def __str__(self):
         return self.name
