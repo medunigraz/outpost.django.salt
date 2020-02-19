@@ -108,5 +108,5 @@ class HostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Host
-        fields = "__all__"
+        fields = ("name", "system")
         extensions = dict()
