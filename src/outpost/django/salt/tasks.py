@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 from celery.task import PeriodicTask, Task
 from purl import URL
 
@@ -14,12 +15,12 @@ class CleanUsersTask(PeriodicTask):
     run_every = timedelta(minutes=5)
 
     def run(self, **kwargs):
-        from .models import SystemUser, User
+        from .models import SystemUser
 
         for u in SystemUser.objects.all():
             try:
                 str(u.user.person)
-            except (User.DoesNotExist) as e:
+            except ObjectDoesNotExist as e:
                 logger.warn(f"Removing {u._meta.label} with PK {u.pk} because of {e}")
                 u.delete()
 
