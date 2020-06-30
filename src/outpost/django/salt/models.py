@@ -271,6 +271,7 @@ post_save.connect(SystemUser.post_save, sender=SystemUser)
 class User(PolymorphicModel):
     systems = models.ManyToManyField("System", through="SystemUser", blank=True)
     local = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ("pk",)
