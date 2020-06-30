@@ -15,14 +15,21 @@ class CleanUsersTask(PeriodicTask):
     run_every = timedelta(minutes=5)
 
     def run(self, **kwargs):
-        from .models import SystemUser
+        from .models import User
 
-        for u in SystemUser.objects.all():
+        for u in User.objects.all():
             try:
-                str(u.user.person)
-            except ObjectDoesNotExist as e:
-                logger.warn(f"Removing {u._meta.label} with PK {u.pk} because of {e}")
-                u.delete()
+                str(u.person)
+            except ObjectDoesNotExist:
+                if u.active:
+                    logger.info(f"Deactivating {u._meta.label} with PK {u.pk}")
+                    u.active = False
+                    u.save()
+            else:
+                if not u.active:
+                    logger.info(f"Reactivating {u._meta.label} with PK {u.pk}")
+                    u.active = True
+                    u.save()
 
 
 class RunCommandTask(Task):
