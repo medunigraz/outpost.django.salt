@@ -39,6 +39,12 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("gid", "name")
 
 
+class SystemUserActiveFilterListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        return super().to_representation(data.filter(user__active=True))
+
+
 class SystemUserSerializer(serializers.ModelSerializer):
     uid = serializers.IntegerField(source="user.pk")
     username = serializers.CharField(source="user.person.username")
@@ -49,6 +55,7 @@ class SystemUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SystemUser
+        list_serializer_class = SystemUserActiveFilterListSerializer
         fields = (
             "uid",
             "username",
