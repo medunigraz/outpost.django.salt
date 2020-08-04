@@ -40,7 +40,6 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class SystemUserActiveFilterListSerializer(serializers.ListSerializer):
-
     def to_representation(self, data):
         return super().to_representation(data.filter(user__active=True))
 

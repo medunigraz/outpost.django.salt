@@ -8,13 +8,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('salt', '0001_initial'),
+        ("salt", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='active',
-            field=models.BooleanField(default=True),
+            model_name="user", name="active", field=models.BooleanField(default=True),
         ),
     ]
