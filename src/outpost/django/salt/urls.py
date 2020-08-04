@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = "salt"
+
 urlpatterns = [
     url(r"^$", views.IndexView.as_view(), name="index"),
     url(r"^publickey/$", views.PublicKeyListView.as_view(), name="publickey"),

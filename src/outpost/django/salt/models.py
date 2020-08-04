@@ -3,6 +3,7 @@ import logging
 import hashlib
 import magic
 import gpg
+import django
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class File(models.Model):
-    user = models.ForeignKey("User")
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
     path = models.CharField(max_length=512)
     content = models.FileField(upload_to=Uuid4Upload)
     systems = models.ManyToManyField("System", through="SystemFile", blank=True)
@@ -118,8 +119,8 @@ post_save.connect(File.post_save_handler, sender=File)
 
 
 class SystemFile(models.Model):
-    system = models.ForeignKey("System")
-    file = models.ForeignKey("File")
+    system = models.ForeignKey("System", on_delete=models.CASCADE)
+    file = models.ForeignKey("File", on_delete=models.CASCADE)
 
     @property
     def path(self) -> str:
@@ -149,7 +150,7 @@ post_save.connect(SystemFile.post_save_handler, sender=SystemFile)
 
 
 class PublicKey(models.Model):
-    user = models.ForeignKey("User")
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     key = models.TextField(validators=(PublicKeyValidator(),))
 
@@ -215,10 +216,14 @@ post_save.connect(System.post_save, sender=System)
 
 class Host(models.Model):
     name = models.CharField(max_length=64, unique=True, db_index=True)
-    system = models.ForeignKey("System", blank=True, null=True)
+    system = models.ForeignKey(
+        "System", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     class Meta:
-        permissions = (("view_host", _("View host")),)
+        permissions = (
+            (("view_host", _("View host")),) if django.VERSION < (2, 1) else tuple()
+        )
         ordering = ("name",)
 
     def __str__(self):
@@ -241,8 +246,8 @@ post_save.connect(Host.post_save, sender=Host)
 
 
 class SystemUser(models.Model):
-    system = models.ForeignKey("System")
-    user = models.ForeignKey("User")
+    system = models.ForeignKey("System", on_delete=models.CASCADE)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
     shell = models.CharField(max_length=256, default="/bin/bash")
     groups = models.ManyToManyField("Group", blank=True)
     sudo = models.BooleanField(default=False)
@@ -270,7 +275,9 @@ post_save.connect(SystemUser.post_save, sender=SystemUser)
 
 class User(PolymorphicModel):
     systems = models.ManyToManyField("System", through="SystemUser", blank=True)
-    local = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
+    local = models.ForeignKey(
+        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.SET_NULL
+    )
     active = models.BooleanField(default=True)
 
     class Meta:
@@ -310,12 +317,16 @@ class User(PolymorphicModel):
 
 class StaffUser(User):
     campusonline = Person
-    person = models.OneToOneField("campusonline.Person", db_constraint=False)
+    person = models.OneToOneField(
+        "campusonline.Person", db_constraint=False, on_delete=models.DO_NOTHING
+    )
 
 
 class StudentUser(User):
     campusonline = Student
-    person = models.OneToOneField("campusonline.Student", db_constraint=False)
+    person = models.OneToOneField(
+        "campusonline.Student", db_constraint=False, on_delete=models.DO_NOTHING
+    )
 
 
 user_logged_in.connect(StaffUser.update)
@@ -350,8 +361,10 @@ post_save.connect(Group.post_save, sender=Group)
 
 
 class Permission(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    system = models.ForeignKey("System", blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    system = models.ForeignKey(
+        "System", blank=True, null=True, on_delete=models.SET_NULL
+    )
     function = models.CharField(max_length=256, default=".*")
 
     def __str__(self):
@@ -374,7 +387,7 @@ class Job(models.Model):
 
 class Result(models.Model):
     function = models.CharField(max_length=50)
-    job = models.ForeignKey("Job")
+    job = models.ForeignKey("Job", on_delete=models.CASCADE)
     result = JSONField()
     data = JSONField()
     target = models.CharField(max_length=255)
