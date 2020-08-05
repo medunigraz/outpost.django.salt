@@ -11,6 +11,15 @@ class PublicKeyInline(admin.TabularInline):
 class SystemUserInline(admin.TabularInline):
     model = models.SystemUser
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(user__active=True)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user":
+            kwargs["queryset"] = models.User.objects.filter(active=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 @admin.register(models.System)
 class SystemAdmin(admin.ModelAdmin):
@@ -31,6 +40,10 @@ class StaffUserAdmin(admin.ModelAdmin):
     list_filter = ("systems",)
     search_fields = ("person__username", "person__first_name", "person__last_name")
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(active=True)
+
 
 @admin.register(models.StudentUser)
 class StudentUserAdmin(admin.ModelAdmin):
@@ -38,6 +51,10 @@ class StudentUserAdmin(admin.ModelAdmin):
     list_display = ("pk", "username", "person")
     list_filter = ("systems",)
     search_fields = ("person__username", "person__first_name", "person__last_name")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(active=True)
 
 
 @admin.register(models.Group)
