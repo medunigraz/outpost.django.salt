@@ -45,6 +45,18 @@ class StaffUserAdmin(admin.ModelAdmin):
         return qs.filter(active=True)
 
 
+@admin.register(models.ExternalUser)
+class ExternalUserAdmin(admin.ModelAdmin):
+    inlines = (SystemUserInline, PublicKeyInline)
+    list_display = ("pk", "username", "person")
+    list_filter = ("systems",)
+    search_fields = ("person__username", "person__first_name", "person__last_name")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(active=True)
+
+
 @admin.register(models.StudentUser)
 class StudentUserAdmin(admin.ModelAdmin):
     inlines = (SystemUserInline, PublicKeyInline)

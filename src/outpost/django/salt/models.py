@@ -26,7 +26,7 @@ from polymorphic.models import PolymorphicModel
 from outpost.django.base.decorators import signal_connect
 from outpost.django.base.utils import Uuid4Upload
 from outpost.django.base.validators import PublicKeyValidator
-from outpost.django.campusonline.models import Person, Student
+from outpost.django.campusonline.models import Person, Student, External
 
 from .tasks import RunCommandTask
 from .conf import settings
@@ -323,6 +323,13 @@ class StaffUser(User):
     )
 
 
+class ExternalUser(User):
+    campusonline = External
+    person = models.OneToOneField(
+        "campusonline.External", db_constraint=False, on_delete=models.DO_NOTHING
+    )
+
+
 class StudentUser(User):
     campusonline = Student
     person = models.OneToOneField(
@@ -331,6 +338,7 @@ class StudentUser(User):
 
 
 user_logged_in.connect(StaffUser.update)
+user_logged_in.connect(ExternalUser.update)
 user_logged_in.connect(StudentUser.update)
 
 
