@@ -18,8 +18,6 @@ class CleanUsersTask(PeriodicTask):
         from .models import User
 
         for u in User.objects.all():
-            if not hasattr(u, "person"):
-                continue
             try:
                 str(u.person)
             except ObjectDoesNotExist:
