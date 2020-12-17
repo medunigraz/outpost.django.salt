@@ -8,7 +8,7 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from hashlib import sha256
-from pathlib import Path
+from pathlib import PurePath
 
 import asyncssh
 from django.contrib.auth import get_user_model
@@ -56,11 +56,8 @@ class File(models.Model):
         if raw:
             return
         for system in instance.user.systems.all():
-            path = Path(instance.path)
-            home = Path(system.home_template.format(username=instance.user.username))
-            if not path.is_absolute():
-                path = home.joinpath(path)
-            path = path.resolve()
+            home = PurePath(system.home_template.format(username=instance.user.username))
+            path = home.joinpath(PurePath(instance.path))
             if home.parts != path.parts[: len(home.parts)]:
                 raise ValidationError(
                     f"Path does not fit in home directory {home} on {system}."
@@ -126,8 +123,8 @@ class SystemFile(models.Model):
     @property
     def path(self) -> str:
         username = self.file.user.username
-        home = Path(self.system.home_template.format(username=username))
-        path = home.joinpath(Path(self.file.path)).resolve()
+        home = PurePath(self.system.home_template.format(username=username))
+        path = home.joinpath(PurePath(self.file.path))
         return str(path)
 
     @classmethod
