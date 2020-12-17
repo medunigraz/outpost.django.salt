@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import outpost.django.salt.validators
+import outpost.django.base.validators
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name="path",
             field=models.CharField(
                 max_length=512,
-                validators=[outpost.django.salt.validators.RelativePathValidator()],
+                validators=[outpost.django.base.validators.RelativePathValidator()],
             ),
         )
     ]
