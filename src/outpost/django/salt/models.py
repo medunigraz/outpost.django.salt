@@ -25,12 +25,11 @@ from polymorphic.models import PolymorphicModel
 
 from outpost.django.base.decorators import signal_connect
 from outpost.django.base.utils import Uuid4Upload
-from outpost.django.base.validators import PublicKeyValidator
+from outpost.django.base.validators import PublicKeyValidator, RelativePathValidator, NormalizedPathValidator
 from outpost.django.campusonline.models import Person, Student, External
 
 from .tasks import RunCommandTask
 from .conf import settings
-from .validators import RelativePathValidator
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 class File(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
-    path = models.CharField(max_length=512, validators=(RelativePathValidator(),))
+    path = models.CharField(max_length=512, validators=(NormalizedPathValidator(), RelativePathValidator(),))
     content = models.FileField(upload_to=Uuid4Upload)
     systems = models.ManyToManyField("System", through="SystemFile", blank=True)
     sha256 = models.CharField(max_length=64)
