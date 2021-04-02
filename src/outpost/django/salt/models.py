@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class File(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
     path = models.CharField(max_length=512, validators=(NormalizedPathValidator(), RelativePathValidator(),))
-    content = models.FileField(upload_to=Uuid4Upload)
+    content = models.FileField(upload_to=Uuid4Upload, storage=settings.SALT_FILE_STORAGE)
     systems = models.ManyToManyField("System", through="SystemFile", blank=True)
     sha256 = models.CharField(max_length=64)
     permissions = models.CharField(
