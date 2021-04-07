@@ -105,3 +105,9 @@ class HostSerializer(serializers.ModelSerializer):
         model = models.Host
         fields = ("name", "system")
         extensions = dict()
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.File
+        fields = ("path", "systems", "permissions")

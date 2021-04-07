@@ -19,6 +19,26 @@ class HostViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = "[^/]+"
 
 
+class FileViewSet(viewsets.ModelViewSet):
+    queryset = models.File.objects.all()
+    serializer_class = serializers.FileSerializer
+    permission_classes = (permissions.IsAuthenticated, ExtendedDjangoModelPermissions)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user__local=self.request.user)
+
+
+class PublicKeyViewSet(viewsets.ModelViewSet):
+    queryset = models.PublicKey.objects.all()
+    serializer_class = serializers.PublicKeySerializer
+    permission_classes = (permissions.IsAuthenticated, ExtendedDjangoModelPermissions)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user=self.request.user)
+
+
 class AuthenticateViewSet(viewsets.ViewSet):
     permission_classes = (permissions.AllowAny,)
 
