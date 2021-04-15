@@ -3,7 +3,8 @@ from datetime import timedelta
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
-from celery.task import PeriodicTask, Task
+from celery import shared_task
+from django.utils.translation import gettext_lazy as _
 from purl import URL
 
 from .conf import settings
@@ -11,10 +12,11 @@ from .conf import settings
 logger = logging.getLogger(__name__)
 
 
-class CleanUsersTask(PeriodicTask):
+class UserTasks:
     run_every = timedelta(minutes=5)
 
-    def run(self, **kwargs):
+    @shared_task(bind=True, ignore_result=True, name=f"{__name__}.User:cleanup")
+    def cleanup(task):
         from .models import User
 
         for u in User.objects.all():
@@ -32,12 +34,12 @@ class CleanUsersTask(PeriodicTask):
                     u.save()
 
 
-class RunCommandTask(Task):
-    def __init__(self, *args, **kwargs):
-        self.session = requests.Session()
-        self.session.headers.update({"Accept": "application/json"})
+class CommandTasks:
 
-    def run(self, **kwargs):
+    @shared_task(bind=True, ignore_result=True, name=f"{__name__}.Command:run")
+    def run(task, **kwargs):
+        session = requests.Session()
+        session.headers.update({"Accept": "application/json"})
         url = URL(settings.SALT_MANAGEMENT_URL)
         kwargs.update(
             {
@@ -49,7 +51,7 @@ class RunCommandTask(Task):
         )
         try:
             logger.debug(f"Posting task with data to Salt API: {kwargs}")
-            result = self.session.post(
+            result = session.post(
                 url.add_path_segment("run").as_string(), data=kwargs
             )
             result.raise_for_status()
