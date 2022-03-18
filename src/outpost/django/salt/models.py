@@ -99,7 +99,7 @@ class File(models.Model):
             return
         for system in instance.systems.all():
             for host in system.host_set.all():
-                task = CommandTasks.run.delay(
+                task = CommandTasks().run.delay(
                     tgt_type="compound",
                     tgt=f"G@host:{host.name}",
                     fun="state.apply",
@@ -131,7 +131,7 @@ class SystemFile(models.Model):
         if raw:
             return
         for host in instance.system.host_set.all():
-            task = CommandTasks.run.delay(
+            task = CommandTasks().run.delay(
                 tgt_type="compound",
                 tgt=f"G@host:{host.name}",
                 fun="state.apply",
@@ -175,7 +175,7 @@ class PublicKey(models.Model):
     def post_save(cls, sender, instance, created, *args, **kwargs):
         for system in instance.user.systems.all():
             for host in system.host_set.all():
-                task = CommandTasks.run.delay(
+                task = CommandTasks().run.delay(
                     tgt_type="compound",
                     tgt=f"G@host:{host.name}",
                     fun="state.apply",
@@ -199,11 +199,11 @@ class System(models.Model):
     @classmethod
     def post_save(cls, sender, instance, created, *args, **kwargs):
         for host in instance.host_set.all():
-            task = CommandTasks.run.delay(
+            task = CommandTasks().run.delay(
                 tgt_type="compound",
                 tgt=f"G@host:{host.name}",
                 fun="state.apply",
-                arg=[],
+                arg=["outpost"],
             )
             logger.debug(f"Scheduled host state sync for {host} as {task.id}")
 
@@ -230,11 +230,11 @@ class Host(models.Model):
     def post_save(cls, sender, instance, created, *args, **kwargs):
         if not created:
             return
-        task = CommandTasks.run.delay(
+        task = CommandTasks().run.delay(
             tgt_type="compound",
             tgt=f"G@host:{instance.name}",
             fun="state.apply",
-            arg=[],
+            arg=["outpost"],
         )
         logger.debug(f"Scheduled host sync for {instance} as {task.id}")
 
@@ -255,7 +255,7 @@ class SystemUser(models.Model):
             if group not in instance.system.group_set.all():
                 instance.system.group_set.add(group)
         for host in instance.system.host_set.all():
-            task = CommandTasks.run.delay(
+            task = CommandTasks().run.delay(
                 tgt_type="compound",
                 tgt=f"G@host:{host.name}",
                 fun="state.apply",
@@ -353,7 +353,7 @@ class Group(models.Model):
     def post_save(cls, sender, instance, created, *args, **kwargs):
         for system in instance.systems.all():
             for host in system.host_set.all():
-                task = CommandTasks.run.delay(
+                task = CommandTasks().run.delay(
                     tgt_type="compound",
                     tgt=f"G@host:{host.name}",
                     fun="state.apply",

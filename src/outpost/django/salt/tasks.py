@@ -46,13 +46,13 @@ class CommandTasks:
                 "username": settings.SALT_MANAGEMENT_USER,
                 "password": settings.SALT_MANAGEMENT_PASSWORD,
                 "eauth": "rest",
-                "client": "local",
+                "client": "local_async",
             }
         )
         try:
             logger.debug(f"Posting task with data to Salt API: {kwargs}")
             result = session.post(
-                url.add_path_segment("run").as_string(), data=kwargs
+                url.add_path_segment("run").as_string(), json=kwargs
             )
             result.raise_for_status()
         except requests.RequestException as e:
