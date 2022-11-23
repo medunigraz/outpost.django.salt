@@ -157,7 +157,7 @@ class PublicKey(models.Model):
     @property
     def fingerprint(self):
         k = asyncssh.import_public_key(self.key)
-        d = sha256(k.get_ssh_public_key()).digest()
+        d = sha256(k.encode_ssh_public()).digest()
         f = b64encode(d).replace(b"=", b"").decode("utf-8")
         return "SHA256:{}".format(f)
 
