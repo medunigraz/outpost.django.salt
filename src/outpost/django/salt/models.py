@@ -193,6 +193,9 @@ class System(models.Model):
     same_group_id = models.BooleanField(default=True)
     same_group_name = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         return self.name
 
