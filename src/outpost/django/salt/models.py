@@ -1,8 +1,8 @@
-import os
+# import os
+# import gpg
 import logging
 import hashlib
 import magic
-import gpg
 import django
 from io import BytesIO
 from tempfile import NamedTemporaryFile

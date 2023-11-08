@@ -1,5 +1,5 @@
 import logging
-import gpg
+# import gpg
 from rest_framework import serializers
 
 from .conf import settings
@@ -9,18 +9,18 @@ from . import models
 logger = logging.getLogger(__name__)
 
 
-class PGPFileField(serializers.Field):
-    def to_representation(self, value):
-        with gpg.Context(armor=True) as c:
-            imp = c.key_import(settings.SALT_PUBLIC_KEY.encode("ascii"))
-            if not isinstance(imp, gpg.results.ImportResult):
-                logger.error("Could not import Saltstack public GPG key.")
-                return
-            keys = [c.get_key(k.fpr) for k in imp.imports]
-            crypt, result, _ = c.encrypt(
-                value.read(), keys, sign=False, always_trust=True
-            )
-        return crypt
+# class PGPFileField(serializers.Field):
+#     def to_representation(self, value):
+#         with gpg.Context(armor=True) as c:
+#             imp = c.key_import(settings.SALT_PUBLIC_KEY.encode("ascii"))
+#             if not isinstance(imp, gpg.results.ImportResult):
+#                 logger.error("Could not import Saltstack public GPG key.")
+#                 return
+#             keys = [c.get_key(k.fpr) for k in imp.imports]
+#             crypt, result, _ = c.encrypt(
+#                 value.read(), keys, sign=False, always_trust=True
+#             )
+#         return crypt
 
 
 class PublicKeySerializer(serializers.ModelSerializer):
