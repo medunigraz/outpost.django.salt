@@ -9,13 +9,19 @@ import outpost.django.base.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('salt', '0005_externaluser'),
+        ("salt", "0005_externaluser"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='path',
-            field=models.CharField(max_length=512, validators=[outpost.django.base.validators.NormalizedPathValidator(), outpost.django.base.validators.RelativePathValidator()]),
+            model_name="file",
+            name="path",
+            field=models.CharField(
+                max_length=512,
+                validators=[
+                    outpost.django.base.validators.NormalizedPathValidator(),
+                    outpost.django.base.validators.RelativePathValidator(),
+                ],
+            ),
         ),
     ]

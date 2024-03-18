@@ -11,13 +11,16 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('salt', '0006_auto_20201217_1245'),
+        ("salt", "0006_auto_20201217_1245"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='content',
-            field=models.FileField(storage=settings.SALT_FILE_STORAGE, upload_to=outpost.django.base.utils.Uuid4Upload),
+            model_name="file",
+            name="content",
+            field=models.FileField(
+                storage=settings.SALT_FILE_STORAGE,
+                upload_to=outpost.django.base.utils.Uuid4Upload,
+            ),
         ),
     ]

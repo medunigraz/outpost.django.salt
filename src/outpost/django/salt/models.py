@@ -25,7 +25,11 @@ from polymorphic.models import PolymorphicModel
 
 from outpost.django.base.decorators import signal_connect
 from outpost.django.base.utils import Uuid4Upload
-from outpost.django.base.validators import PublicKeyValidator, RelativePathValidator, NormalizedPathValidator
+from outpost.django.base.validators import (
+    PublicKeyValidator,
+    RelativePathValidator,
+    NormalizedPathValidator,
+)
 from outpost.django.campusonline.models import Person, Student, External
 
 from .tasks import CommandTasks
@@ -37,8 +41,16 @@ logger = logging.getLogger(__name__)
 
 class File(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
-    path = models.CharField(max_length=512, validators=(NormalizedPathValidator(), RelativePathValidator(),))
-    content = models.FileField(upload_to=Uuid4Upload, storage=settings.SALT_FILE_STORAGE)
+    path = models.CharField(
+        max_length=512,
+        validators=(
+            NormalizedPathValidator(),
+            RelativePathValidator(),
+        ),
+    )
+    content = models.FileField(
+        upload_to=Uuid4Upload, storage=settings.SALT_FILE_STORAGE
+    )
     systems = models.ManyToManyField("System", through="SystemFile", blank=True)
     sha256 = models.CharField(max_length=64)
     permissions = models.CharField(
@@ -55,7 +67,9 @@ class File(models.Model):
         if raw:
             return
         for system in instance.user.systems.all():
-            home = PurePath(system.home_template.format(username=instance.user.username))
+            home = PurePath(
+                system.home_template.format(username=instance.user.username)
+            )
             path = home.joinpath(PurePath(instance.path))
             if home.parts != path.parts[: len(home.parts)]:
                 raise ValidationError(

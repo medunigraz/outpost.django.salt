@@ -35,7 +35,6 @@ class UserTasks:
 
 
 class CommandTasks:
-
     @shared_task(bind=True, ignore_result=True, name=f"{__name__}.Command:run")
     def run(task, **kwargs):
         session = requests.Session()
@@ -51,9 +50,7 @@ class CommandTasks:
         )
         try:
             logger.debug(f"Posting task with data to Salt API: {kwargs}")
-            result = session.post(
-                url.add_path_segment("run").as_string(), json=kwargs
-            )
+            result = session.post(url.add_path_segment("run").as_string(), json=kwargs)
             result.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"Failed to run task through Salt API: {e}")
