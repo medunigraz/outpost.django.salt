@@ -228,6 +228,15 @@ class System(models.Model):
 post_save.connect(System.post_save, sender=System)
 
 
+class UserDirectory(models.Model):
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    template = models.TextField()
+    permissions = models.CharField(max_length=4, default="0700")
+
+    def __str__(self):
+        return f"{self.system}: {self.template}"
+
+
 class Host(models.Model):
     name = models.CharField(max_length=64, unique=True, db_index=True)
     system = models.ForeignKey(

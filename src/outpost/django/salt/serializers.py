@@ -52,6 +52,7 @@ class SystemUserSerializer(serializers.ModelSerializer):
     homedir = serializers.SerializerMethodField()
     groups = GroupSerializer(many=True)
     public_keys = PublicKeySerializer(source="user.publickey_set.all", many=True)
+    directories = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SystemUser
@@ -65,10 +66,18 @@ class SystemUserSerializer(serializers.ModelSerializer):
             "groups",
             "sudo",
             "public_keys",
+            "directories",
         )
 
     def get_homedir(self, o):
         return o.system.home_template.format(username=o.user.person.username)
+
+    def get_directories(self, o):
+        for d in o.system.userdirectory_set.all():
+            yield {
+                "path": d.template.replace("{username}", o.user.person.username),
+                "permissions": d.permissions,
+            }
 
 
 class SystemFileSerializer(serializers.ModelSerializer):

@@ -21,10 +21,14 @@ class SystemUserInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class UserDirectoryInline(admin.TabularInline):
+    model = models.UserDirectory
+
+
 @admin.register(models.System)
 class SystemAdmin(admin.ModelAdmin):
     search_fields = ("name",)
-    inlines = (SystemUserInline,)
+    inlines = (SystemUserInline, UserDirectoryInline)
 
 
 @admin.register(models.Host)
