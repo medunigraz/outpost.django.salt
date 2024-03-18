@@ -10,6 +10,7 @@ from purl import URL
 from django.core.management.base import BaseCommand
 
 from ...conf import settings
+from ...signals import event
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class Command(BaseCommand):
 
     async def run(self):
         pattern = re.compile(r"^(?P<type>\w+): (?P<data>.*)$")
-        url = self.url.add_path_segment("events").as_string()
+        url = self.url.add_path_segment("ws").as_string()
         async with aiohttp.ClientSession() as session:
             await self.get_token(session)
             while True:
@@ -64,15 +65,11 @@ class Command(BaseCommand):
                 await self.token_event.wait()
                 try:
                     headers = {"X-Auth-Token": self.token}
-                    async with session.get(url, headers=headers) as stream:
-                        try:
-                            stream.raise_for_status()
-                        except aiohttp.ClientResponseError as e:
-                            logger.warn(f"Could not connect to event bus: {e}")
-                            continue
-                        async for line in stream.content:
-                            raw = line.decode("utf-8")
-                            matches = pattern.match(raw)
+                    async with session.ws_connect(url, headers=headers) as stream:
+                        await stream.send_str("websocket client ready")
+                        while not stream.closed:
+                            raw = await stream.receive()
+                            matches = pattern.match(raw.decode("utf-8"))
                             if not matches:
                                 logger.debug(f"Pattern does not match: {raw}")
                                 continue
@@ -80,9 +77,12 @@ class Command(BaseCommand):
                             t = groups.get("type")
                             logger.debug(f"Received message of type {t}")
                             if t == "data":
-                                json.loads(matches.groupdict().get("data"))
-                                # TODO: Process message
-
+                                data = json.loads(matches.groupdict().get("data"))
+                                self.loop.create_task(
+                                    self.loop.run_in_executor(
+                                        None, event.send_robust, self.__class__, data
+                                    )
+                                )
                 except (
                     aiohttp.client_exceptions.ClientPayloadError,
                     concurrent.futures._base.TimeoutError,

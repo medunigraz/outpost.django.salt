@@ -276,7 +276,7 @@ post_save.connect(SystemUser.post_save, sender=SystemUser)
 class User(PolymorphicModel):
     systems = models.ManyToManyField("System", through="SystemUser", blank=True)
     local = models.ForeignKey(
-        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.SET_NULL
+        get_user_model(), blank=True, null=True, on_delete=models.SET_NULL
     )
     active = models.BooleanField(default=True)
 
