@@ -14,32 +14,32 @@ class PublicKeyForm(forms.ModelForm):
         model = models.PublicKey
         fields = ("name", "key")
 
-    @property
-    def helper(self) -> FormHelper:
-        h = FormHelper()
-        h.html5_required = True
-        h.form_method = "POST"
-        h.form_tag = True
-        h.form_action = reverse("salt:publickey-create")
-        h.layout = Layout(
-            Field("name"),
-            Field("key"),
-            FormActions(
-                IconButton(
-                    "glyphicon glyphicon-ok-sign",
-                    "Save changes",
-                    css_class="btn-success",
-                    type="submit",
-                ),
-                LinkIconButton(
-                    reverse("salt:publickey"),
-                    "glyphicon glyphicon-ban-circle",
-                    "Cancel",
-                    css_class="btn-warning",
-                ),
-            ),
-        )
-        return h
+    # @property
+    # def helper(self) -> FormHelper:
+    #    h = FormHelper()
+    #    h.html5_required = True
+    #    h.form_method = "POST"
+    #    h.form_tag = True
+    #    h.form_action = reverse("salt:publickey-create")
+    #    h.layout = Layout(
+    #        Field("name"),
+    #        Field("key"),
+    #        FormActions(
+    #            IconButton(
+    #                "glyphicon glyphicon-ok-sign",
+    #                "Save changes",
+    #                css_class="btn-success",
+    #                type="submit",
+    #            ),
+    #            LinkIconButton(
+    #                reverse("salt:publickey"),
+    #                "glyphicon glyphicon-ban-circle",
+    #                "Cancel",
+    #                css_class="btn-warning",
+    #            ),
+    #        ),
+    #    )
+    #    return h
 
 
 class FileForm(forms.ModelForm):
@@ -55,31 +55,31 @@ class FileForm(forms.ModelForm):
     def helper(self) -> FormHelper:
         h = FormHelper()
         h.html5_required = True
-        h.form_method = "POST"
-        h.form_tag = True
+        # h.form_method = "POST"
+        # h.form_tag = True
         h.layout = Layout(
             PrependedText("path", "~/"), Field("systems"), Field("permissions")
         )
         if self.pk:
-            h.form_action = reverse("salt:file-update", kwargs={"pk": self.pk})
+            #    h.form_action = reverse("salt:file-update", kwargs={"pk": self.pk})
             h.layout.extend([StaticField("sha256"), StaticField("mimetype")])
         else:
-            h.form_action = reverse("salt:file-create")
+            #    h.form_action = reverse("salt:file-create")
             h.layout.append(Field("content"))
-        h.layout.append(
-            FormActions(
-                IconButton(
-                    "glyphicon glyphicon-ok-sign",
-                    "Save changes",
-                    css_class="btn-success",
-                    type="submit",
-                ),
-                LinkIconButton(
-                    reverse("salt:file"),
-                    "glyphicon glyphicon-ban-circle",
-                    "Cancel",
-                    css_class="btn-warning",
-                ),
-            )
-        )
+        # h.layout.append(
+        #    FormActions(
+        #        IconButton(
+        #            "glyphicon glyphicon-ok-sign",
+        #            "Save changes",
+        #            css_class="btn-success",
+        #            type="submit",
+        #        ),
+        #        LinkIconButton(
+        #            reverse("salt:file"),
+        #            "glyphicon glyphicon-ban-circle",
+        #            "Cancel",
+        #            css_class="btn-warning",
+        #        ),
+        #    )
+        # )
         return h

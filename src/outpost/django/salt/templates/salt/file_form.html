@@ -3,11 +3,51 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block content %}
+{% block contentx %}
 <div class="page-header">
   <h1>
     {{ title }}
   </h1>
 </div>
 {% crispy form %}
+{% endblock %}
+{% block content %}
+<form method="post" action="{% if object %}{% url 'salt:file-edit' pk=object.pk %}{% else %}{% url 'salt:file-create' %}{% endif %}" enctype="multipart/form-data" class="pb-4">
+<div class="border-bottom mb-2">
+  <div class="btn-toolbar pull-right">
+    <div class="btn-group">
+      <a class="btn btn-secondary" href="{% url 'salt:file' %}">
+        <i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+        {% trans "Go Back" %}
+      </a>
+      <button class="btn btn-primary" type="submit">
+        <i class="fa fa-save" aria-hidden="true"></i>
+        {% trans "Save" %}
+      </a>
+    </div>
+  </div>
+  <h1>
+    {% if object %}
+    {% blocktrans with name=object.path %}
+    Edit {{ name }}
+    {% endblocktrans %}
+    {% else %}
+    {% trans "Create new file" %}
+    {% endif %}
+  </h1>
+</div>
+{% csrf_token %}
+{% crispy form %}
+<div class="control-group {% if form.non_field_errors %}error{% endif %}">
+  {% for error in form.non_field_errors %}
+  <span class="help-inline">{{ error }}</span>
+  {% endfor %}
+</div>
+<div class="control-group">
+  <button type="submit" class="btn btn-primary btn-block">
+    <i class="fa fa-save" aria-hidden="true"></i>
+    {% trans "Save" %}
+  </button>
+</div>
+</form>
 {% endblock %}

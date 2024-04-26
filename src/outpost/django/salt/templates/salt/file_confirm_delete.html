@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block content %}
+{% block contentx %}
 <div class="page-header">
   <h1>
     {% trans "Remove file" %}
@@ -19,9 +19,6 @@
 <div class="row">
   <div class="col-sm-12">
     <ul>
-      {% for systemfile in object.systemfile_set.all %}
-      <li>{{ systemfile.system }}</li>
-      {% endfor %}
     </ul>
   </div>
 </div>
@@ -42,3 +39,43 @@
   </form>
 </div>
 {% endblock %}
+{% block content %}
+<form method="post" action="{% url 'salt:file-delete' pk=object.pk %}">
+  <div class="border-bottom mb-2">
+    <h1>
+      {% blocktrans with path=object.path %}
+      Delete {{ path }}
+      {% endblocktrans %}
+    </h1>
+  </div>
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-sm-6">
+          {% blocktrans with name=object.path count=object.systemfile_set.count %}
+          Are you sure you want to remove your file <strong>{{ name }}</strong>. It was installed on <strong>{{ count }} systems</strong> but will not be automatically deleted.
+          {% endblocktrans %}
+        </div>
+        <div class="col-sm-6">
+          <ul>
+            {% for systemfile in object.systemfile_set.all %}
+            <li>{{ systemfile.system }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer btn-group">
+      <button type="submit" class="btn btn-danger">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+        {% trans "Delete" %}
+      </button>
+      <a class="btn btn-secondary" href="{% url "salt:file" %}">
+        <i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+        {% trans "Cancel" %}
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock content %}

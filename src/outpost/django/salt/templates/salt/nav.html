@@ -1,18 +1,19 @@
 {% load i18n %}
 {% if request.user.is_authenticated %}
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-    <span class="glyphicon glyphicon-dashboard"></span>
-    SaltStack
-    <span class="caret"></span>
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_salt" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-server" aria-hidden="true"></i>
+    {% trans "SaltStack" %}
   </a>
-  <ul class="dropdown-menu">
-    <li>
-        <a href="{% url 'salt:publickey' %}">{% trans 'Public keys' %}</a>
-    </li>
-    <li>
-        <a href="{% url 'salt:file' %}">{% trans 'Files' %}</a>
-    </li>
-  </ul>
+  <div class="dropdown-menu" aria-labelledby="navbarDropdown_api">
+    <a class="dropdown-item" href="{% url 'salt:publickey' %}">
+      <i class="fa fa-key-modern" aria-hidden="true"></i>
+      {% trans 'Public keys' %}
+    </a>
+    <a class="dropdown-item" href="{% url 'salt:file' %}">
+      <i class="fa fa-file" aria-hidden="true"></i>
+      {% trans 'Files' %}
+    </a>
+  </div>
 </li>
 {% endif %}

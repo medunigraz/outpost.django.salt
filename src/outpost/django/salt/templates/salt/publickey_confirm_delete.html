@@ -4,11 +4,17 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="page-header">
+<form method="post" action="{% url 'salt:publickey-delete' pk=object.pk %}">
+  <div class="border-bottom mb-2">
     <h1>
-        {% trans "Remove public key" %}
+      {% blocktrans with name=object.name %}
+      Delete {{ name }}
+      {% endblocktrans %}
     </h1>
-</div>
+  </div>
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-body">
 <div class="row">
     <div class="col-sm-6">
         {% blocktrans with name=object.name fingerprint=object.fingerprint %}
@@ -23,20 +29,17 @@
         </ul>
     </div>
 </div>
-<div class="row">
-    <form method="post" action="{% url 'salt:publickey-delete' pk=object.pk %}" enctype="multipart/form-data" class="col-sm-12">
-        {% csrf_token %}
-
-        <div class="control-group">
-            <button type="submit" class="btn btn-danger">
-                <span class="glyphicon glyphicon-remove-sign"></span>
-                {% trans 'Delete' %}
-            </button>
-            <a href="{% url 'salt:publickey' %}" class="btn btn-warning">
-                <span class="glyphicon glyphicon-ban-circle"></span>
-                {% trans 'Cancel' %}
-            </a>
-        </div>
-    </form>
-</div>
-{% endblock %}
+    </div>
+    <div class="card-footer btn-group">
+      <button type="submit" class="btn btn-danger">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+        {% trans "Delete" %}
+      </button>
+      <a class="btn btn-secondary" href="{% url "salt:publickey" %}">
+        <i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+        {% trans "Cancel" %}
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock content %}

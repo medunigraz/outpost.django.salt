@@ -3,51 +3,59 @@
 {% load i18n %}
 
 {% block content %}
-<div class="page-header">
-    <div class="btn-group pull-right">
-        <a href="{% url 'salt:file-create' %}" class="btn btn-info">
-            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-            {% trans "Add file" %}
-        </a>
-    </div>
-    <h1>
-        {% trans "Your files" %}
-    </h1>
+<div class="border-bottom mb-2">
+  <div class="btn-group pull-right">
+    <a href="{% url 'salt:file-create' %}" class="btn btn-primary">
+      <i class="fa fa-plus-square" aria-hidden="true"></i>
+      {% trans "Add file" %}
+    </a>
+  </div>
+  <h1>
+    {% trans "Your files" %}
+  </h1>
 </div>
 <h3>{% trans "Current files" %}</h3>
 <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Path</th>
-            <th>Permissions</th>
-            <th>MIME</th>
-            <th>Systems</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for file in object_list %}
-        <tr>
-            <th scope="row">{{ file.path }}</th>
-            <td>{{ file.permissions }}</td>
-            <td>{{ file.mimetype }}</td>
-            <td>
-              <ul>
-                {% for systemfile in  file.systemfile_set.all %}
-                <li>{{ systemfile.system }}: <code>{{ systemfile.path }}</code></li>
-                {% endfor %}
-              </ul>
-            </td>
-            <td>
-                <a href="{% url 'salt:file-update' pk=file.pk %}" class="text-info">
-                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                </a>
-                <a href="{% url 'salt:file-delete' pk=file.pk %}" class="text-danger">
-                    <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>
+        {% trans "Path" %}
+      </th>
+      <th>
+        {% trans "Permissions" %}
+      </th>
+      <th>
+        {% trans "MIME" %}
+      </th>
+      <th>
+        {% trans "Systems" %}
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for file in object_list %}
+    <tr>
+      <th scope="row">{{ file.path }}</th>
+      <td>{{ file.permissions }}</td>
+      <td>{{ file.mimetype }}</td>
+      <td>
+        <ul>
+          {% for systemfile in  file.systemfile_set.all %}
+          <li>{{ systemfile.system }}: <code>{{ systemfile.path }}</code></li>
+          {% endfor %}
+        </ul>
+      </td>
+      <td>
+        <a href="{% url 'salt:file-edit' pk=file.pk %}" class="btn btn-primary">
+          <i class="fa fa-edit" aria-hidden="true"></i>
+        </a>
+        <a href="{% url 'salt:file-delete' pk=file.pk %}" class="btn btn-danger">
+          <i class="fa fa-trash" aria-hidden="true"></i>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endblock %}
