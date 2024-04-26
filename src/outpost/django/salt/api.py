@@ -1,13 +1,22 @@
 from collections import defaultdict
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import (
+    authenticate,
+    login,
+)
 from django.core.cache import cache
-from rest_framework import exceptions, permissions, viewsets
+from outpost.django.api.permissions import ExtendedDjangoModelPermissions
+from rest_framework import (
+    exceptions,
+    permissions,
+    viewsets,
+)
 from rest_framework.response import Response
 
-from outpost.django.api.permissions import ExtendedDjangoModelPermissions
-
-from . import models, serializers
+from . import (
+    models,
+    serializers,
+)
 from .conf import settings
 
 

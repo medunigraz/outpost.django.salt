@@ -2,8 +2,8 @@ import logging
 from datetime import timedelta
 
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from purl import URL
 

@@ -1,40 +1,48 @@
 # import os
 # import gpg
-import logging
 import hashlib
-import magic
-import django
-from io import BytesIO
-from tempfile import NamedTemporaryFile
+import logging
 from base64 import b64encode
 from hashlib import sha256
+from io import BytesIO
 from pathlib import PurePath
+from tempfile import NamedTemporaryFile
 
 import asyncssh
+import django
+import magic
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in
-from django.db import models
-from django.db.models.signals import post_save, pre_save
 from django.contrib.postgres.fields import JSONField
-from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError, ImproperlyConfigured
-from django.core.validators import RegexValidator
-from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    ValidationError,
+)
 from django.core.files import File as DjangoFile
-from polymorphic.models import PolymorphicModel
-
+from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models.signals import (
+    post_save,
+    pre_save,
+)
+from django.utils.translation import gettext_lazy as _
 from outpost.django.base.decorators import signal_connect
 from outpost.django.base.utils import Uuid4Upload
 from outpost.django.base.validators import (
+    NormalizedPathValidator,
     PublicKeyValidator,
     RelativePathValidator,
-    NormalizedPathValidator,
 )
-from outpost.django.campusonline.models import Person, Student, External
+from outpost.django.campusonline.models import (
+    External,
+    Person,
+    Student,
+)
+from polymorphic.models import PolymorphicModel
 
-from .tasks import CommandTasks
 from .conf import settings
-
+from .tasks import CommandTasks
 
 logger = logging.getLogger(__name__)
 

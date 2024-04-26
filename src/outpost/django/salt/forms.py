@@ -1,10 +1,25 @@
 from typing import Optional
+
+from crispy_forms.bootstrap import (
+    FormActions,
+    PrependedText,
+    StrictButton,
+)
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    Button,
+    Div,
+    Field,
+    Layout,
+    Submit,
+)
 from django import forms
 from django.urls import reverse_lazy as reverse
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, Submit, Button
-from crispy_forms.bootstrap import StrictButton, PrependedText, FormActions
-from outpost.django.base.layout import StaticField, IconButton, LinkIconButton
+from outpost.django.base.layout import (
+    IconButton,
+    LinkIconButton,
+    StaticField,
+)
 
 from . import models
 

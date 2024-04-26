@@ -1,13 +1,13 @@
-import sys
-import json
-import re
 import asyncio
-import aiohttp
 import concurrent
+import json
 import logging
+import re
+import sys
 
-from purl import URL
+import aiohttp
 from django.core.management.base import BaseCommand
+from purl import URL
 
 from ...conf import settings
 from ...signals import event

@@ -3,9 +3,8 @@ import logging
 # import gpg
 from rest_framework import serializers
 
-from .conf import settings
 from . import models
-
+from .conf import settings
 
 logger = logging.getLogger(__name__)
 

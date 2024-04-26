@@ -11,7 +11,10 @@ from django.views.generic import (
 )
 from outpost.django.base.mixins import ContextMixin
 
-from . import models, forms
+from . import (
+    forms,
+    models,
+)
 
 
 class IndexView(TemplateView):
