@@ -13,7 +13,6 @@ import django
 import magic
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import (
     ImproperlyConfigured,
     ValidationError,
@@ -414,7 +413,7 @@ class Permission(models.Model):
 
 class Job(models.Model):
     id = models.CharField(max_length=20, primary_key=True)
-    data = JSONField()
+    data = models.JSONField()
 
     class Meta:
         managed = False
@@ -427,8 +426,8 @@ class Job(models.Model):
 class Result(models.Model):
     function = models.CharField(max_length=50)
     job = models.ForeignKey("Job", on_delete=models.CASCADE)
-    result = JSONField()
-    data = JSONField()
+    result = models.JSONField()
+    data = models.JSONField()
     target = models.CharField(max_length=255)
     success = models.BooleanField()
     modified = models.DateTimeField()

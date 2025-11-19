@@ -1,26 +1,24 @@
-from django.conf.urls import url
+from django.urls import re_path, path
 
 from . import views
 
 app_name = "salt"
 
 urlpatterns = [
-    url(r"^$", views.IndexView.as_view(), name="index"),
-    url(r"^publickey/$", views.PublicKeyListView.as_view(), name="publickey"),
-    url(
-        r"^publickey/add/$",
+    path("", views.IndexView.as_view(), name="index"),
+    path("publickey/", views.PublicKeyListView.as_view(), name="publickey"),
+    path(
+        "publickey/add/",
         views.PublicKeyCreateView.as_view(),
         name="publickey-create",
     ),
-    url(
-        r"^publickey/delete/(?P<pk>\d+)$",
+    path(
+        "publickey/delete/<int:pk>/",
         views.PublicKeyDeleteView.as_view(),
         name="publickey-delete",
     ),
-    url(r"^file/$", views.FileListView.as_view(), name="file"),
-    url(r"^file/add/$", views.FileCreateView.as_view(), name="file-create"),
-    url(r"^file/edit/(?P<pk>\d+)$", views.FileUpdateView.as_view(), name="file-edit"),
-    url(
-        r"^file/delete/(?P<pk>\d+)$", views.FileDeleteView.as_view(), name="file-delete"
-    ),
+    path("file/", views.FileListView.as_view(), name="file"),
+    path("file/add/", views.FileCreateView.as_view(), name="file-create"),
+    path("file/edit/<int:pk>/", views.FileUpdateView.as_view(), name="file-edit"),
+    path("file/delete/<int:pk>/", views.FileDeleteView.as_view(), name="file-delete"),
 ]

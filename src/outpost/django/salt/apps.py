@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class DefaultConfig(AppConfig):
-    name = "outpost.django.salt"
+    name = __package__
 
     def ready(self):
         from .conf import settings
