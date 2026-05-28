@@ -31,7 +31,6 @@ class Migration(migrations.Migration):
                 ),
                 ("data", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
-            options={"db_table": "salt_job", "managed": False},
         ),
         migrations.CreateModel(
             name="Result",
@@ -237,7 +236,7 @@ class Migration(migrations.Migration):
                     ),
                 )
             ],
-            options={"ordering": ("pk",), "manager_inheritance_from_future": True},
+            options={"ordering": ("pk",)},
         ),
         migrations.CreateModel(
             name="StaffUser",
@@ -262,7 +261,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"manager_inheritance_from_future": True},
             bases=("salt.user",),
         ),
         migrations.CreateModel(
@@ -288,7 +286,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"manager_inheritance_from_future": True},
             bases=("salt.user",),
         ),
         migrations.AddField(
