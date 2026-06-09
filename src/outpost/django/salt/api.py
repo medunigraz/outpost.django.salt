@@ -45,7 +45,7 @@ class PublicKeyViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
+        return qs.filter(user__local=self.request.user)
 
 
 class AuthenticateViewSet(viewsets.ViewSet):
