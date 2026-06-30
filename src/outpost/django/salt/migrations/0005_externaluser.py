@@ -9,7 +9,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("campusonline", "0053_external"),
         ("salt", "0004_auto_20200805_1403"),
     ]
 
