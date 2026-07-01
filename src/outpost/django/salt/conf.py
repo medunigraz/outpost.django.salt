@@ -13,7 +13,7 @@ class SaltAppConf(AppConf):
 
 -----END PGP PUBLIC KEY BLOCK-----
     """
-    FILE_STORAGE = settings.DEFAULT_FILE_STORAGE
+    FILE_STORAGE = None
 
     class Meta:
         prefix = "salt"
