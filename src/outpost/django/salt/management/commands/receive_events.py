@@ -6,6 +6,7 @@ import re
 import sys
 
 import aiohttp
+import sdnotify
 from django.core.management.base import BaseCommand
 from purl import URL
 
@@ -56,10 +57,12 @@ class Command(BaseCommand):
             self.loop.call_later(lifetime - 60, self.get_token, (session,))
 
     async def run(self):
+        n = sdnotify.SystemdNotifier()
         pattern = re.compile(r"^(?P<type>\w+): (?P<data>.*)$")
         url = self.url.add_path_segment("ws").as_string()
         async with aiohttp.ClientSession() as session:
             await self.get_token(session)
+            n.notify("READY=1")
             while True:
                 logger.debug("Waiting for token")
                 await self.token_event.wait()
