@@ -39,6 +39,7 @@ class HostAdmin(admin.ModelAdmin):
 
 @admin.register(models.StaffUser)
 class StaffUserAdmin(admin.ModelAdmin):
+    autocomplete_fields = ("person",)
     inlines = (SystemUserInline, PublicKeyInline)
     list_display = ("pk", "username", "person")
     list_filter = ("systems",)
